@@ -1,0 +1,24 @@
+{
+  "name": "react-native-revmob",
+  "description": "Oficial RevMob ads React Native package.",
+  "version": "9.1.0",
+  "private": false,
+  "keywords": [
+    "revmob",
+    "react-native",
+    "ads",
+    "banner",
+    "fullscreen",
+    "monetization",
+    "ad",
+    "plugin",
+    "sdk"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/RevMob/react-native-revmob.git"
+  },
+  "homepage": "https://www.revmobmobileadnetwork.com/",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {}
+}
