@@ -10,7 +10,9 @@ import {
   View,
   requireNativeComponent,
   ScrollView,
-  Platform
+  Platform,
+  TouchableHighlight,
+  Switch
 } from 'react-native';
 
 import { RevMobManager } from 'react-native-revmob';
@@ -18,11 +20,17 @@ import Toast from 'react-native-root-toast';
 
 import { NativeAppEventEmitter } from 'react-native';
 import { NativeModules } from 'react-native';
-  
+
+const TouchableText = (props) => <TouchableHighlight underlayColor="#fff" activeOpacity={0.2} onPress={props.onTextPress}>
+        <Text style={styles.welcome}  >
+          {props.text}
+        </Text>
+        </TouchableHighlight>;
+
 class rnrevmob extends Component {
   constructor(props) {
     super(props);
-    this.state = {isSessionStarted: false}
+    this.state = {isSessionStarted: false, testModeOn: true}
   }
 
   componentWillMount () {
@@ -86,7 +94,12 @@ class rnrevmob extends Component {
 
   startSession = () => {
     Toast.show('Starting session...');
-    RevMobManager.startSession( Platform.OS === 'ios' ? '5695efd659163ac94e52393e' : '5695f1c559163ac94e52394c', 
+    // Test
+    const testMediaId = Platform.OS === 'ios' ? '5695efd659163ac94e52393e' : '5695f1c559163ac94e52394c';
+    // Live
+    const liveMediaId = Platform.OS === 'ios' ? 'YOUR_IOS_MEDIA_ID' : 'YOUR_ANDROID_MEDIA_ID';
+
+    RevMobManager.startSession( this.state.testModeOn ? testMediaId : liveMediaId ,
       (error) => {
         console.log(error)
         if(!error) {
@@ -102,63 +115,45 @@ class rnrevmob extends Component {
   }
 
   render() {
-    const { isSessionStarted } = this.state;
+    const { isSessionStarted, testModeOn } = this.state;
     return (
       <View style={styles.container}>
-
+        
         <Text style={[styles.listener, {color: isSessionStarted ? 'green' : 'red'}]}>
           {isSessionStarted ? 'Session Started' : 'Session Not Started'}
         </Text>
+        <View style={{flexDirection: 'row'}} >
+          <Text>
+          Test mode:
+          </Text>
+          <Switch value={testModeOn}
+            onValueChange={(value) => this.setState({testModeOn: value})}
+            disabled={isSessionStarted}
+            />
+        </View>
+
         <ScrollView style={styles.scrollView}>
-        
-        <Text style={styles.welcome} onPress={this.startSession} >
-          Start Session
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.loadFullscreen} >
-          Load Fullscreen
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.showPreLoadedFullscreen} >
-          Show Pre Loaded Fullscreen
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.showFullscreen} >
-          Show Fullscreen
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.showCustomBanner.bind(null, 0, 200, 100, 200)} >
-          Show Custom Banner
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.hideCustomBanner}>
-          Hide Custom Banner
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.showBanner} >
-          Show Banner
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.hideBanner} >
-          Hide Banner
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.loadVideo} >
-          Load Video
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.showVideo} >
-          Show Video
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.loadRewardedVideo} >
-          Load Rewarded Video
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.showRewardedVideo} >
-          Show Rewarded Video
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.loadAdLink} >
-          Load Link
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.openLoadedAdLink} >
-          Open Loaded Link
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.openAdLink} >
-          Open Ad Link
-        </Text>
-        <Text style={styles.welcome} onPress={RevMobManager.printEnvironmentInformation} >
-          Print Environment Information
-        </Text>
+          <TouchableText onTextPress={this.startSession} text="Start Session"/>
+
+          <TouchableText onTextPress={ () => RevMobManager.loadFullscreen() } text="Load Fullscreen"/>
+          <TouchableText onTextPress={ () => RevMobManager.showPreLoadedFullscreen() } text="Show Pre Loaded Fullscreen"/>
+          <TouchableText onTextPress={ () => RevMobManager.showFullscreen() } text="Show Fullscreen"/>
+          <TouchableText onTextPress={ () => RevMobManager.loadCustomBanner(0, 200, 100, 100) } text="Load Custom Banner"/>
+          <TouchableText onTextPress={ () => RevMobManager.showCustomBanner() } text="Show Custom Banner"/>
+          <TouchableText onTextPress={ () => RevMobManager.hideCustomBanner() } text="Hide Custom Banner"/>
+          <TouchableText onTextPress={ () => RevMobManager.releaseCustomBanner() } text="Release Custom Banner"/>
+          <TouchableText onTextPress={ () => RevMobManager.loadBanner() } text="Load Banner"/>
+          <TouchableText onTextPress={ () => RevMobManager.showBanner() } text="Show Banner"/>
+          <TouchableText onTextPress={ () => RevMobManager.hideBanner() } text="Hide Banner"/>
+          <TouchableText onTextPress={ () => RevMobManager.releaseBanner() } text="Release Banner"/>
+          <TouchableText onTextPress={ () => RevMobManager.loadVideo() } text="Load Video"/>
+          <TouchableText onTextPress={ () => RevMobManager.showVideo() } text="Show Video"/>
+          <TouchableText onTextPress={ () => RevMobManager.loadRewardedVideo() } text="Load Rewarded Video"/>
+          <TouchableText onTextPress={ () => RevMobManager.showRewardedVideo() } text="Show Rewarded Video"/>
+          <TouchableText onTextPress={ () => RevMobManager.loadAdLink() } text="Load Link"/>
+          <TouchableText onTextPress={ () => RevMobManager.openLoadedAdLink() } text="Open Loaded Link"/>
+          <TouchableText onTextPress={ () => RevMobManager.openAdLink() } text="Open Ad Link"/>
+          <TouchableText onTextPress={ () => RevMobManager.printEnvironmentInformation() } text="Print Environment Information"/>
         </ScrollView>
         
       </View>

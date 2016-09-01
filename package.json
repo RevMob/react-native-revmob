@@ -1,7 +1,7 @@
 {
   "name": "react-native-revmob",
-  "description": "Oficial RevMob ads React Native package.",
-  "version": "9.1.0",
+  "description": "Official RevMob ads React Native package.",
+  "version": "9.2.1",
   "private": false,
   "keywords": [
     "revmob",

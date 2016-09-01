@@ -213,6 +213,7 @@ typedef enum {
  @param onSessionNotStartedHandler: A block that will be executed once the session failed to start, can be nil.
  
  */
+
 + (RevMobAds *)startSessionWithAppID:(NSString *)anAppId
                   withSuccessHandler:(void(^)())onSessionStartedHandler
                       andFailHandler:(void(^)(NSError *error))onSessionNotStartedHandler;
@@ -222,6 +223,11 @@ typedef enum {
                       andFailHandler:(void(^)(NSError *error))onSessionNotStartedHandler
                                  url:(NSString *) serverUrl
                                  key:(int) sessionKey;
+
++ (RevMobAds *)startSessionWithAppID:(NSString *)anAppId
+                         withSdkName:(NSString *)sdkName
+                  withSuccessHandler:(void(^)()) onSessionStartedHandler
+                      andFailHandler:(void(^)(NSError *error)) onSessionNotStartedHandler;
 
 
 /**
@@ -265,6 +271,17 @@ typedef enum {
  @see showBanner
  */
 - (void)hideBanner;
+
+/**
+ Release the banner that is displayed.
+ 
+ Example of usage:
+ [[RevMobAds session] releaseBanner];
+ 
+ @see releaseBanner
+ */
+
+-(void)releaseBanner;
 
 /**
  Show popup.

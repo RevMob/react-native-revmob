@@ -15,6 +15,8 @@ typedef void (^RevMobBannerViewOnclickHandler)(RevMobBannerView *banner);
  */
 @interface RevMobBannerView : UIView <UIWebViewDelegate>
 
+@property (nonatomic,assign) NSString * loadMethod;
+
 /**
  The delegate setted on this property is called when ad related events happend, see
  RevMobAdsDelegate for mode details.

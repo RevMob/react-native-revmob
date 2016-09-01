@@ -6,6 +6,13 @@
 typedef void (^RevMobBannerSuccessfullHandler)(RevMobBanner *banner);
 typedef void (^RevMobBannerFailureHandler)(RevMobBanner *banner, NSError *erro);
 typedef void (^RevMobBannerOnClickHandler)(RevMobBanner *banner);
+typedef enum {
+    RevMobBannerStatusEmpty = 0,
+    RevMobBannerStatusLoading,
+    RevMobBannerStatusLoaded,
+    RevMobBannerStatusHidden,
+    RevMobBannerStatusShowing
+} RevMobBannerStatus;
 
 /**
  Class responsable for handle the Banner ad unit.
@@ -16,6 +23,8 @@ typedef void (^RevMobBannerOnClickHandler)(RevMobBanner *banner);
  RevMobBannerView class.
  */
 @interface RevMobBanner : NSObject
+
+@property(nonatomic,assign) BOOL basicBanner;
 
 /**
  The delegate setted on this property is called when ad related events happend, see
@@ -80,6 +89,11 @@ typedef void (^RevMobBannerOnClickHandler)(RevMobBanner *banner);
  Use this method to hide the ad.
  */
 - (void)hideAd;
+
+/**
+ Use this method to release the ad.
+ */
+-(void)releaseAd;
 
 
 

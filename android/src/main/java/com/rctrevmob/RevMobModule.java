@@ -26,9 +26,10 @@ public class RevMobModule extends ReactContextBaseJavaModule{
     private RevMob revmob;
     private RevMobFullscreen fullscreen, video, rewardedVideo;
     private RevMobLink link;
-    private RevMobBanner customBanner;
-    private RelativeLayout.LayoutParams bannerParams;
-    private RelativeLayout bannerRelativeLayout;
+    private RevMobBanner banner, customBanner;
+    private RelativeLayout.LayoutParams customBannerParams, bannerParams;
+    private RelativeLayout customBannerRelativeLayout, bannerRelativeLayout;
+    private Activity bannerActivity, customBannerActivity;
     private final String LOG_TAG = "RevMobModule";
     private final String SESSION_NOT_STARTED_MSG = "Session has not been started. Call the startSession method.";
 
@@ -159,17 +160,29 @@ public class RevMobModule extends ReactContextBaseJavaModule{
             sendEvent(reactContext, "onRevmobFullscreenDidFailWithError", sessionNotStarted);
         }
     }
+    @ReactMethod
+    public void showCustomBanner () {
+        if (customBanner != null && customBannerActivity != null) {
+            customBannerActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    customBanner.show();
+                }
+            });
+        }
+    }
 
     @ReactMethod
-    public void showCustomBanner(final int x, final int y, final int width, final int height) {
+    public void loadCustomBanner(final int x, final int y, final int width, final int height) {
         final ReactContext reactContext = getReactApplicationContext();
         final Activity activity = getCurrentActivity();
         WritableMap sessionNotStarted = Arguments.createMap();
         sessionNotStarted.putString("error", SESSION_NOT_STARTED_MSG);
         if (activity != null && revmob != null) {
             // If custom banner is null, create a new one
+            customBannerActivity = activity;
             if(customBanner == null) {
-                customBanner = revmob.createBanner(activity, null, new RevMobAdsListener(){
+                customBanner = revmob.preLoadBanner(activity, null, new RevMobAdsListener(){
                     @Override
                     public void onRevMobAdClicked() {
                         sendEvent(reactContext, "onRevmobUserDidClickOnBanner", null);
@@ -192,16 +205,16 @@ public class RevMobModule extends ReactContextBaseJavaModule{
                         sendEvent(reactContext, "onRevmobBannerDidReceive", null);
                     }
                 });
-                bannerRelativeLayout = new RelativeLayout(getReactApplicationContext());
-                bannerParams = new RelativeLayout.LayoutParams(width, height);
-                bannerParams.leftMargin = x;
-                bannerParams.bottomMargin = y;
-                bannerRelativeLayout.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-                bannerRelativeLayout.addView(customBanner, bannerParams);
+                customBannerRelativeLayout = new RelativeLayout(getReactApplicationContext());
+                customBannerParams = new RelativeLayout.LayoutParams(width, height);
+                customBannerParams.leftMargin = x;
+                customBannerParams.bottomMargin = y;
+                customBannerRelativeLayout.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+                customBannerRelativeLayout.addView(customBanner, customBannerParams);
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        activity.addContentView(bannerRelativeLayout, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT));
+                        activity.addContentView(customBannerRelativeLayout, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT));
                     }
                 });
             }
@@ -212,29 +225,46 @@ public class RevMobModule extends ReactContextBaseJavaModule{
 
     @ReactMethod
     public void hideCustomBanner() {
-        Activity activity = getCurrentActivity();
-        if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
+        if (customBanner != null && customBannerActivity != null) {
+            customBannerActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    bannerRelativeLayout.removeAllViews();
-                    customBanner = null;
+                    customBanner.hide();
                 }
             });
         }
     }
 
     @ReactMethod
-    public void showBanner() {
+    public void releaseCustomBanner () {
+        if (customBanner != null && customBannerActivity != null) {
+            customBannerActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    customBannerRelativeLayout.removeAllViews();
+                    customBanner.release();
+                    customBanner = null;
+                    customBannerRelativeLayout = null;
+                }
+            });
+        }
+    }
+
+    @ReactMethod
+    public void loadBanner () {
         final ReactContext reactContext = getReactApplicationContext();
         final Activity activity = getCurrentActivity();
         WritableMap sessionNotStarted = Arguments.createMap();
+        final int displayWidth = getCurrentActivity().getWindowManager().getDefaultDisplay().getWidth();
+        final int displayHeight = getCurrentActivity().getWindowManager().getDefaultDisplay().getHeight();
         sessionNotStarted.putString("error", SESSION_NOT_STARTED_MSG);
         if (activity != null && revmob != null) {
-            activity.runOnUiThread(new Runnable() {
+            bannerActivity = activity;
+            if ( banner == null ) {
+                bannerActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    revmob.showBanner(activity, Gravity.BOTTOM, null, new RevMobAdsListener(){
+                    banner = revmob.preLoadBanner(activity, new RevMobAdsListener(){
                         @Override
                         public void onRevMobAdClicked() {
                             sendEvent(reactContext, "onRevmobUserDidClickOnBanner", null);
@@ -257,19 +287,58 @@ public class RevMobModule extends ReactContextBaseJavaModule{
                             sendEvent(reactContext, "onRevmobBannerDidReceive", null);
                         }
                     });
+                    banner.determineDefaultDimensions();
+                    float width = Math.min(displayWidth,displayHeight);
+                    float height = width * RevMobBanner.DEFAULT_HEIGHT_IN_DIP/RevMobBanner.DEFAULT_WIDTH_IN_DIP;
+                    bannerRelativeLayout = new RelativeLayout(getCurrentActivity().getApplicationContext());
+                    bannerParams = new RelativeLayout.LayoutParams((int)width, (int)height);
+                    bannerRelativeLayout.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+                    bannerActivity.addContentView(bannerRelativeLayout, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,RelativeLayout.LayoutParams.FILL_PARENT));
+                    bannerRelativeLayout.addView(banner, bannerParams);
                 }
-            });
+                });
+            }
         } else {
             sendEvent(reactContext, "onRevmobBannerDidFailWithError", sessionNotStarted);
         }
+    }
 
+    @ReactMethod
+    public void showBanner() {
+        final Activity activity = getCurrentActivity();
+        if(banner != null && bannerActivity != null) {
+            bannerActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    banner.hide();
+                    banner.show();
+                }
+            });
+        }
     }
 
     @ReactMethod
     public void hideBanner() {
-        Activity activity = getCurrentActivity();
-        if (activity != null && revmob != null) {
-            revmob.hideBanner(activity);
+        if(banner != null && bannerActivity != null) {
+            bannerActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    banner.hide();
+                }
+            });
+        }
+    }
+
+    @ReactMethod 
+    public void releaseBanner() {
+        if(banner != null && bannerActivity != null) {
+            bannerActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    banner.release();
+                    banner = null;
+                }
+            });
         }
     }
 

@@ -6,9 +6,9 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react": "^15.0.2",
-    "react-native": "^0.26.2",
-    "react-native-revmob": "^9.1.0",
+    "react": "15.2.1",
+    "react-native": "^0.31.0",
+    "react-native-revmob": "9.2.1",
     "react-native-root-toast": "^1.0.3"
   }
 }

@@ -1,7 +1,7 @@
 # RevMob React-Native Sample App
 ### How to run
 
-Using your terminal, go to SampleApp directory and enter command `npm install && npm start`. 
+Using your terminal, go to SampleApp directory and enter command `npm install && npm start`.
 
 ###Forum
 -------

@@ -14,7 +14,7 @@ You can find more details about RevMob's package integration at [Official RevMob
 #### To add the plugin to your existing React Native project:
 #### Using [rnpm](https://github.com/rnpm/rnpm):
 1. Using your terminal, go to your project directory and enter the command: `npm install --save react-native-revmob`
-2. `rnpm link`
+2. `react-native link`
 3. Add the file `RevMobAds.framework` that is included inside the ios folder (`yourProject/node_modules/react-native-revmob/ios`) to your project.
 4. *(Optional)* Add RevMob's Fullscreen Activity to your `AndroidManifest.xml`:
 ```xml

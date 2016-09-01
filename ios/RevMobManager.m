@@ -7,7 +7,6 @@
   RevMobFullscreen *video, *rewardedVideo, *fullscreen;
   RevMobBanner *banner;
   RevMobBanner *customBanner;
-  RevMobBanner *customLocalBanner;
   RevMobAdLink *link;
 }
 
@@ -24,7 +23,6 @@ RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(printEnvironmentInformation)
 {
-  [self.bridge.eventDispatcher sendAppEventWithName:@"onRevmobSessionIsStarted" body:@{}];
   [[RevMobAds session] printEnvironmentInformation];
 }
 
@@ -66,49 +64,66 @@ RCT_EXPORT_METHOD(showPreLoadedFullscreen)
   if (fullscreen) [fullscreen showAd];
 }
 
+RCT_EXPORT_METHOD(loadBanner)
+{
+  if (banner == nil){
+    banner = [[RevMobAds session] banner];
+    banner.delegate = self;
+    [banner loadAd];
+  }
+}
+
 RCT_EXPORT_METHOD(showBanner)
 {
-  if(banner){
-    [banner hideAd];
+  if (banner){
+    [banner showAd];
   }
-  banner = [[RevMobAds session] banner];
-  banner.delegate = self;
-  [banner showAd];
 }
 
 RCT_EXPORT_METHOD(hideBanner)
 {
   if (banner) {
     [banner hideAd];
-    banner = NULL;
   }
 }
 
-RCT_EXPORT_METHOD(showCustomBanner:(float) x y:(float) y
+RCT_EXPORT_METHOD(releaseBanner)
+{
+  if(banner) {
+    [banner releaseAd];
+    banner = nil;
+  }
+}
+
+RCT_EXPORT_METHOD(loadCustomBanner:(float) x y:(float) y
                   width:(float) width height:(float) height)
 {
-  if (customBanner) {
-    [customBanner hideAd];
+  if (customBanner == nil) {
+    customBanner = [[RevMobAds session] banner];
+    customBanner.delegate = self;
+    [customBanner setFrame:CGRectMake(x, y, width, height)];
+    [customBanner loadAd];
   }
-  if (customLocalBanner) [customLocalBanner hideAd];
-  customBanner = [[RevMobAds session] banner];
-  customBanner.delegate = self;
-  [customBanner loadWithSuccessHandler:^(RevMobBanner *localBanner) {
-    customLocalBanner = localBanner;
-    localBanner.frame = CGRectMake(x, y, width, height);
-    localBanner.delegate = self;
-    [localBanner showAd];
-  } andLoadFailHandler:^(RevMobBanner *localBanner, NSError *error) {
-    
-  } onClickHandler:^(RevMobBanner *localBanner) {
-    
-  }];
-  
+}
+
+RCT_EXPORT_METHOD(showCustomBanner)
+{
+  if (customBanner) {
+    [customBanner showAd];
+  }
 }
 
 RCT_EXPORT_METHOD(hideCustomBanner)
 {
-  [customBanner hideAd];
+  if (customBanner) [customBanner hideAd];
+}
+
+RCT_EXPORT_METHOD(releaseCustomBanner)
+{
+  if (customBanner) {
+    [customBanner releaseAd];
+    customBanner = nil;
+  }
 }
 
 RCT_EXPORT_METHOD(loadVideo)
