@@ -67,6 +67,11 @@ public class RevMobModule extends ReactContextBaseJavaModule{
         }
     }
 
+    @ReactMethod
+    public void isSessionStarted(final Callback callback) {
+        callback.invoke(revmob != null);
+    }
+
     private void sendEvent(ReactContext reactContext, String eventName, @Nullable WritableMap params) {
         reactContext
                 .getJSModule(RCTNativeAppEventEmitter.class)
